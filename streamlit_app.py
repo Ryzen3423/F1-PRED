@@ -7,7 +7,7 @@ from sklearn.ensemble import RandomForestClassifier
 # --------------------------
 @st.cache_data
 def load_data():
-races = pd.read_csv("races.csv")
+     races = pd.read_csv("races.csv")
 drivers = pd.read_csv("drivers.csv")
 constructors = pd.read_csv("constructors.csv")
 results = pd.read_csv("results.csv")
