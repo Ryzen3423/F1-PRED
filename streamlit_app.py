@@ -8,15 +8,15 @@ from sklearn.ensemble import RandomForestClassifier
 @st.cache_data
 def load_data():
      races = pd.read_csv("races.csv")
-drivers = pd.read_csv("drivers.csv")
-constructors = pd.read_csv("constructors.csv")
-results = pd.read_csv("results.csv")
-circuits = pd.read_csv("circuits.csv")
-qualifying = pd.read_csv("qualifying.csv")
-pit_stops = pd.read_csv("pit_stops.csv")
-lap_times = pd.read_csv("lap_times.csv")
-constructor_standings = pd.read_csv("constructor_standings.csv")
-driver_standings = pd.read_csv("driver_standings.csv")
+     drivers = pd.read_csv("drivers.csv")
+     constructors = pd.read_csv("constructors.csv")
+     results = pd.read_csv("results.csv")
+     circuits = pd.read_csv("circuits.csv")
+     qualifying = pd.read_csv("qualifying.csv")
+     pit_stops = pd.read_csv("pit_stops.csv")
+     lap_times = pd.read_csv("lap_times.csv")
+     constructor_standings = pd.read_csv("constructor_standings.csv")
+     driver_standings = pd.read_csv("driver_standings.csv")
     
     # Drop duplicate columns
     races.drop(columns=['url'], inplace=True, errors='ignore')
