@@ -7,24 +7,18 @@ from sklearn.ensemble import RandomForestClassifier
 # --------------------------
 @st.cache_data
 def load_data():
-     races = pd.read_csv("races.csv")
-     drivers = pd.read_csv("drivers.csv")
-     constructors = pd.read_csv("constructors.csv")
-     results = pd.read_csv("results.csv")
-     circuits = pd.read_csv("circuits.csv")
-     qualifying = pd.read_csv("qualifying.csv")
-     pit_stops = pd.read_csv("pit_stops.csv")
-     lap_times = pd.read_csv("lap_times.csv")
-     constructor_standings = pd.read_csv("constructor_standings.csv")
-     driver_standings = pd.read_csv("driver_standings.csv")
-    
-    # Drop duplicate columns
-    races.drop(columns=['url'], inplace=True, errors='ignore')
-    drivers.drop(columns=['url'], inplace=True, errors='ignore')
-    constructors.drop(columns=['url'], inplace=True, errors='ignore')
-    circuits.drop(columns=['url'], inplace=True, errors='ignore')
-    
-    # Merge data
+    results = pd.read_csv("results.csv")
+    races = pd.read_csv("races.csv")
+    drivers = pd.read_csv("drivers.csv")
+    constructors = pd.read_csv("constructors.csv")
+    circuits = pd.read_csv("circuits.csv")
+
+    # Drop conflicting columns (like 'url') if they exist
+    for df in [races, drivers, constructors, circuits]:
+        if 'url' in df.columns:
+            df.drop(columns=['url'], inplace=True)
+
+    # Merge dataframes
     df = results.merge(races, on='raceId', suffixes=('', '_race')) \
                 .merge(drivers, on='driverId') \
                 .merge(constructors, on='constructorId') \
@@ -37,17 +31,14 @@ def load_data():
 
     return df
 
+# Load and prepare data
 df = load_data()
-
-# --------------------------
-# Train Model
-# --------------------------
 features = ['grid', 'driver_age', 'positionOrder', 'points', 'is_home_race']
 df_model = df[['raceId', 'driverId', 'surname'] + features + ['top3']].dropna()
 
+# Train model
 X = df_model[features]
 y = df_model['top3']
-
 model = RandomForestClassifier(random_state=42)
 model.fit(X, y)
 
@@ -57,20 +48,18 @@ model.fit(X, y)
 st.title("🏎️ F1 Podium Predictor App")
 st.markdown("Predict which drivers are likely to finish in the **Top 3** for a given race.")
 
-# Race selection
+# Dropdown for raceId
 race_ids = df_model['raceId'].unique()
 selected_race = st.selectbox("Select a race ID:", sorted(race_ids))
 
-# Predict for selected race
+# Filter and predict
 race_drivers = df_model[df_model['raceId'] == selected_race].copy()
 X_race = race_drivers[features]
 race_drivers['Top 3 Probability'] = model.predict_proba(X_race)[:, 1]
 race_drivers['Predicted Top 3'] = model.predict(X_race)
 
-# Sort by probability
+# Sort and display
 race_drivers_sorted = race_drivers.sort_values(by='Top 3 Probability', ascending=False)
-
-# Show results
 st.subheader(f"Predictions for Race ID {selected_race}")
 st.dataframe(
     race_drivers_sorted[['surname', 'grid', 'Top 3 Probability', 'Predicted Top 3']],
